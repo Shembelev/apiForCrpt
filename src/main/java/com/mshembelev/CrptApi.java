@@ -62,7 +62,7 @@ class CrptApi{
                 //HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 //System.out.println(response);
             } else {
-                System.out.println("Лимит исчерпан, запрос не может быть отправлен");
+                throw new Exception("Запрос не выполнен. Лимит исчерпан");
             }
         } catch (Exception exception) {
             exception.printStackTrace();
