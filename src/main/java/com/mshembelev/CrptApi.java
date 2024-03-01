@@ -18,6 +18,12 @@ class CrptApi{
     private Semaphore requestSemaphore;
     private final String baseApi = "https://ismp.crpt.ru/api/v3/lk/";
 
+    /**
+     * Конструктор класса CrptApi
+     *
+     * @param timeUnit - промежуток времени – секунда, минута
+     * @param requestLimit - положительное значение, которое определяет максимальное количество запросов в этом промежутке времени
+     */
     public CrptApi(TimeUnit timeUnit, int requestLimit) {
         this.httpClient = HttpClient.newHttpClient();
         this.requestSemaphore = new Semaphore(requestLimit);
@@ -30,20 +36,27 @@ class CrptApi{
         scheduler.scheduleAtFixedRate(this::resetRequests, initialDelay, timeInterval, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Обнуление счетчиков
+     */
     private void resetRequests() {
         requestsLeft.set(requestLimit);
     }
 
+    /**
+     * Метод-запрос на создания докумена
+     * @param document Документ
+     * @param signature подпись
+     */
     public void createDocument(Document document, String signature) {
         try {
             if (requestsLeft.getAndDecrement() > 0) {
                 String requestBody = document.toString();
-                requestBody = requestBody.substring(0, requestBody.length() - 1) + ",\"signature\":\"" + signature + "\"}";
 
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(baseApi + "/documents/create"))
                         .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
+                        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                         .build();
 
                 //HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
